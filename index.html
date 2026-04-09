@@ -1,0 +1,2184 @@
+<!DOCTYPE html>  <html>    <meta charset="UTF-8">      <head>        <meta name="viewport" content="width=device-width, initial-scale=1.0" />        
+<style>        
+  body {        
+  margin: 0;        
+  overflow: hidden;        
+  background: #0b0f1a;        
+  font-family: system-ui;        
+}  #grid {      
+position: relative;      
+width: 100vw;      
+height: 100vh;      
+}  #topUI {    
+position: absolute;    
+top: 0;    
+left: 0;    
+width: 100vw;    
+height: 30px;    
+z-index: 9999;    
+}  #topUI button {  
+position: absolute;  
+top: 0;  
+height: 30px;  
+border: none;  
+background: white;  
+color: black;  
+font-size: 12px;  
+}  #scrollbar {
+position: fixed; /* 🔥 IMPORTANT */
+bottom: 0;
+left: 0;
+width: 100vw;
+height: 60px;
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 9999; /* 🔥 ABOVE BUBBLES */
+pointer-events: auto;
+}
+
+#track {
+position: relative;
+width: 80%;
+height: 30px;
+background: #bbb;
+border-radius: 20px;
+}
+
+#thumb {
+position: absolute;
+top: 0;
+left: 0;
+height: 30px;
+width: 80px;
+background: #444;
+border-radius: 20px;
+}
+
+#popup, #numpad {
+position: absolute;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background: rgba(0,0,0,0.6);
+display: none;
+justify-content: center;
+align-items: center;
+z-index: 10000;
+}
+
+#popupContent {
+width: 70%;
+background: white;
+padding: 20px;
+border-radius: 10px;
+text-align: center;
+}
+
+#popupContent button {
+width: 100%;
+height: 40px;
+font-size: 14px;
+}
+
+#numpadContent {
+width: 80%;
+}
+
+#display {
+background: white;
+color: black;
+height: 50px;
+font-size: 20px;
+text-align: right;
+padding: 10px;
+margin-bottom: 10px;
+font-family: system-ui;
+}
+
+#keys {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+justify-items: center;
+}
+
+#popup {
+  display: none;
+  z-index: 99999; /* 🔥 SUPER TAAS */
+}
+
+#popupContent {
+  position: relative;
+  z-index: 100000; /* 🔥 MAS TAAS PA */
+}
+
+.key {
+width:70px;
+height:70px;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+background:#8bbbd9;
+font-size:22px;
+font-family: system-ui;
+}
+
+.key.pink {
+background:#f5a3a3;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #6cf, #36c);
+  z-index: 1; /* 🔥 LOWER THAN SCROLLBAR */
+}
+
+.elBtn {
+  width: 70px;
+  height: 70px;
+  margin: 6px;
+  border-radius: 20px;
+  border: 3px solid transparent;
+  overflow: hidden;
+  background: #eee;
+  padding: 0;
+}
+
+.elBtn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.elBtn.active {
+  border: 3px solid #4caf50;
+}
+
+#popupContent {
+  pointer-events: auto;
+}
+
+#popup {
+  pointer-events: auto;
+}
+
+#scrollbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* para may space */
+  z-index: 9999;
+}
+
+#scrollbar button {
+  width: 50px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: none;
+  background: #444;
+  color: white;
+}
+</style>
+
+</head>        
+<body>  <div id="topUI">        
+  <button id="btn1">TOOLS</button>        
+  <button id="btn2">ELEMENTS</button>        
+  <button id="btn3">EXPORT LEVELS</button>        
+</div>  
+
+<div id="grid"></div>  <div id="scrollbar">
+
+  <button id="upArrow">▲</button>
+
+  <div id="track">
+    <div id="thumb"></div>
+  </div>
+
+  <button id="downArrow">▼</button>
+
+</div>  <div id="popup">
+  <div id="popupContent">
+
+    <button id="rowsBtn">ROWS CALCULATOR</button>
+    <button id="gamesBtn">GAMES : 0/0</button>
+
+    <button id="closePopupBtn" style="margin-top:10px; background:#444; color:white;">
+      CLOSE
+    </button>
+
+  </div>
+</div>
+
+</div> <!-- END NG popup -->
+
+<!-- 🔥 DITO MO ILALAGAY -->
+<div id="charactersPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+background:rgba(0,0,0,0.6);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
+  <div style="background:white; padding:20px; border-radius:10px; width:70%;">
+    
+    <button onclick="selectCharacter(0)">NERO'S ORB</button>
+    <button onclick="selectCharacter(1)">WILBUR'S ORB</button>
+    <button onclick="selectCharacter(2)">TRICK OR TREAT'S ORB</button>
+
+  </div>
+</div>
+
+<!-- ELEMENTS POPUP -->
+<div id="elementsPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+background:rgba(0,0,0,0.6);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
+  <div style="
+  width:70%;
+  max-height:80vh;
+  overflow-y:auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+">
+  
+  <div id="comboPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+background:rgba(0,0,0,0.6);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
+  <div style="
+  width:70%;
+  max-height:80vh;
+  overflow-y:auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+  ">
+    <div id="comboContainer"></div>
+  </div>
+</div>
+  
+    <!-- DITO LALAGAY BUTTONS LATER -->
+    <div style="margin-bottom:10px;">
+  <button id="createComboBtn">CREATE</button>
+  <button id="openComboListBtn">NEW ELEMENTS LIST</button>
+</div>
+
+<div id="elementsContainer">
+
+<!-- ORIGINAL -->
+<button class="elBtn" data-img="Untitled1_20260402175652.png">
+<img src="./Untitled1_20260402175652.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260402175658.png">
+<img src="./Untitled1_20260402175658.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260402175704.png">
+<img src="./Untitled1_20260402175704.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260402175710.png">
+<img src="./Untitled1_20260402175710.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260402175716.png">
+<img src="./Untitled1_20260402175716.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260402175721.png">
+<img src="./Untitled1_20260402175721.png">
+</button>
+
+<!-- 🔥 NEW OWLS -->
+<button class="elBtn" data-img="Untitled1_20260405093605.png">
+<img src="./Untitled1_20260405093605.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260405093619.png">
+<img src="./Untitled1_20260405093619.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260405093625.png">
+<img src="./Untitled1_20260405093625.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260405093631.png">
+<img src="./Untitled1_20260405093631.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260405093636.png">
+<img src="./Untitled1_20260405093636.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260405093641.png">
+<img src="./Untitled1_20260405093641.png">
+</button>
+
+<!-- 🔥 FAIRY BUBBLES -->
+<button class="elBtn" data-img="Untitled1_20260404230343.png">
+  <img src="./Untitled1_20260404230343.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260404230348.png">
+  <img src="./Untitled1_20260404230348.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260404230353.png">
+  <img src="./Untitled1_20260404230353.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260404230358.png">
+  <img src="./Untitled1_20260404230358.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260404230404.png">
+  <img src="./Untitled1_20260404230404.png">
+</button>
+
+<button class="elBtn" data-img="Untitled1_20260404230411.png">
+  <img src="./Untitled1_20260404230411.png">
+</button>
+
+<!-- 🔥 BUBBLE UPS (BLOCKERS) -->
+<button class="elBtn" data-img="BUBBLEUPS 1.png">
+  <img src="./BUBBLEUPS 1.png">
+</button>
+
+<button class="elBtn" data-img="BUBBLEUPS 2.png">
+  <img src="./BUBBLEUPS 2.png">
+</button>
+
+<button class="elBtn" data-img="BUBBLEUPS 3.png">
+  <img src="./BUBBLEUPS 3.png">
+</button>
+
+<!-- 🔥 SPECIAL ELEMENTS -->
+<button class="elBtn" data-img="Spider_web.png">
+  <img src="./Spider_web.png">
+</button>
+
+<button class="elBtn" data-img="LINE_BLAST.png">
+  <img src="./LINE_BLAST.png">
+</button>
+
+<button class="elBtn" data-img="BAT_BUBBLE.png">
+  <img src="./BAT_BUBBLE.png">
+</button>
+
+<button class="elBtn" data-img="CLOUD.png">
+  <img src="./CLOUD.png">
+</button>
+
+<button class="elBtn" data-img="Left_Arrow.png">
+  <img src="./Left_Arrow.png">
+</button>
+
+<button class="elBtn" data-img="Left_Diagonal_Arrow.png">
+  <img src="./Left_Diagonal_Arrow.png">
+</button>
+
+<button class="elBtn" data-img="Right_Diagonal_Arrow.png">
+  <img src="./Right_Diagonal_Arrow.png">
+</button>
+
+<button class="elBtn" data-img="Right_Arrow.png">
+  <img src="./Right_Arrow.png">
+</button>
+
+<button class="elBtn" data-img="Golem_Open.png">
+  <img src="./Golem_Open.png">
+</button>
+
+<button class="elBtn" data-img="Golem_Closed.png">
+  <img src="./Golem_Closed.png">
+</button>
+
+<button class="elBtn" data-img="Fairy_Nest_101.png">
+  <img src="./Fairy_Nest_101.png">
+</button>
+
+<!-- 🔥 DUO BUBBLES -->
+<button class="elBtn" data-img="randomduobubble.png"><img src="./randomduobubble.png"></button>
+
+<button class="elBtn" data-img="bluered.png"><img src="./bluered.png"></button>
+<button class="elBtn" data-img="yellowred.png"><img src="./yellowred.png"></button>
+<button class="elBtn" data-img="greenred.png"><img src="./greenred.png"></button>
+<button class="elBtn" data-img="purplered.png"><img src="./purplered.png"></button>
+
+<button class="elBtn" data-img="yellowblue.png"><img src="./yellowblue.png"></button>
+<button class="elBtn" data-img="greenblue.png"><img src="./greenblue.png"></button>
+<button class="elBtn" data-img="bluepurple.png"><img src="./bluepurple.png"></button>
+
+<button class="elBtn" data-img="yellowgreen.png"><img src="./yellowgreen.png"></button>
+<button class="elBtn" data-img="yellowpurple.png"><img src="./yellowpurple.png"></button>
+<button class="elBtn" data-img="greenpurple.png"><img src="./greenpurple.png"></button>
+
+<!-- 🔥 NEW SPECIAL FILES -->
+<button class="elBtn" data-img="extra_moves.png">
+  <img src="./extra_moves.png">
+</button>
+
+<button class="elBtn" data-img="ice_bubble.png">
+  <img src="./ice_bubble.png">
+</button>
+
+<button class="elBtn" data-img="fireworks_199.png">
+  <img src="./fireworks_199.png">
+</button>
+
+<button class="elBtn" data-img="pumpkin.png">
+  <img src="./pumpkin.png">
+</button>
+
+<button class="elBtn" data-img="moreless_plus1.png">
+  <img src="./moreless_plus1.png">
+</button>
+
+<button class="elBtn" data-img="moreless_minus1.png">
+  <img src="./moreless_minus1.png">
+</button>
+
+<button class="elBtn" data-img="random_moreless.png">
+  <img src="./random_moreless.png">
+</button>
+
+<!-- 🔥 NEW BATCH (FROGS / MIRRORS / ETC) -->
+
+<button class="elBtn" data-img="frogsty.png">
+  <img src="./frogsty.png">
+</button>
+
+<button class="elBtn" data-img="tint_bubble.png">
+  <img src="./tint_bubble.png">
+</button>
+
+<button class="elBtn" data-img="fogfrog.png">
+  <img src="./fogfrog.png">
+</button>
+
+<button class="elBtn" data-img="leaf_bubble.png">
+  <img src="./leaf_bubble.png">
+</button>
+
+<button class="elBtn" data-img="dubblie_left.png">
+  <img src="./dubblie_left.png">
+</button>
+
+<button class="elBtn" data-img="dubblie_right.png">
+  <img src="./dubblie_right.png">
+</button>
+
+<button class="elBtn" data-img="random_dubblie.png">
+  <img src="./random_dubblie.png">
+</button>
+
+<button class="elBtn" data-img="bubblifier.png">
+  <img src="./bubblifier.png">
+</button>
+
+<!-- 🔥 MIRRORS (5 COLORS SAME LOGIC) -->
+<button class="elBtn" data-img="red_mirror.png"><img src="./red_mirror.png"></button>
+<button class="elBtn" data-img="blue_mirror.png"><img src="./blue_mirror.png"></button>
+<button class="elBtn" data-img="yellow_mirror.png"><img src="./yellow_mirror.png"></button>
+<button class="elBtn" data-img="green_mirror.png"><img src="./green_mirror.png"></button>
+<button class="elBtn" data-img="purple_mirror.png"><img src="./purple_mirror.png"></button>
+
+<!-- 🔥 NEW 4 ELEMENTS -->
+<button class="elBtn" data-img="Armor_Bubble.png">
+  <img src="./Armor_Bubble.png">
+</button>
+
+<button class="elBtn" data-img="Crystal_Bubble.png">
+  <img src="./Crystal_Bubble.png">
+</button>
+
+<button class="elBtn" data-img="Golden_Beetle.png">
+  <img src="./Golden_Beetle.png">
+</button>
+
+<button class="elBtn" data-img="Fairy_Bunch.png">
+  <img src="./Fairy_Bunch.png">
+</button>
+
+<!-- 🔥 CHAMELEONS -->
+<button class="elBtn" data-img="Random Chameleon.png"><img src="./Random Chameleon.png"></button>
+<button class="elBtn" data-img="Red Chameleon.png"><img src="./Red Chameleon.png"></button>
+<button class="elBtn" data-img="Blue Chameleon.png"><img src="./Blue Chameleon.png"></button>
+<button class="elBtn" data-img="Yellow Chameleon.png"><img src="./Yellow Chameleon.png"></button>
+<button class="elBtn" data-img="Green Chameleon.png"><img src="./Green Chameleon.png"></button>
+<button class="elBtn" data-img="Purple Chameleon.png"><img src="./Purple Chameleon.png"></button>
+
+<!-- 🔥 FAIRY CHAMELEONS -->
+<button class="elBtn" data-img="Random Fairy Chameleon.png"><img src="./Random Fairy Chameleon.png"></button>
+<button class="elBtn" data-img="Red Fairy Chameleon.png"><img src="./Red Fairy Chameleon.png"></button>
+<button class="elBtn" data-img="Blue Fairy Chameleon.png"><img src="./Blue Fairy Chameleon.png"></button>
+<button class="elBtn" data-img="Yellow Fairy Chameleon.png"><img src="./Yellow Fairy Chameleon.png"></button>
+<button class="elBtn" data-img="Green Fairy Chameleon.png"><img src="./Green Fairy Chameleon.png"></button>
+<button class="elBtn" data-img="Purple Fairy Chameleon.png"><img src="./Purple Fairy Chameleon.png"></button>
+
+<!-- 🔥 NEW SPECIAL BATCH 2 -->
+<button class="elBtn" data-img="Cauldron.png">
+  <img src="./Cauldron.png">
+</button>
+
+<button class="elBtn" data-img="Flower_Bubble.png">
+  <img src="./Flower_Bubble.png">
+</button>
+
+<button class="elBtn" data-img="Black_Hole.png">
+  <img src="./Black_Hole.png">
+</button>
+
+<button class="elBtn" data-img="Lava_Bubble.png">
+  <img src="./Lava_Bubble.png">
+</button>
+
+<!-- 🔥 HONEY SYSTEM -->
+<button class="elBtn" data-img="Honeycomb.png">
+  <img src="./Honeycomb.png">
+</button>
+
+<button class="elBtn" data-img="Dark Honeycomb.png">
+  <img src="./Dark Honeycomb.png">
+</button>
+
+<button class="elBtn" data-img="Honey Bee.png">
+  <img src="./Honey Bee.png">
+</button>
+
+<!-- 🔥 FINAL ELEMENTS -->
+<button class="elBtn" data-img="Magic_Broom.png">
+  <img src="./Magic_Broom.png">
+</button>
+
+<button class="elBtn" data-img="Soap_Bubble.png">
+  <img src="./Soap_Bubble.png">
+</button>
+
+<button class="elBtn" data-img="Slime.png">
+  <img src="./Slime.png">
+</button>
+
+<button class="elBtn" data-img="Phantom_Disappeared.png">
+  <img src="./Phantom_Disappeared.png">
+</button>
+
+<button class="elBtn" data-img="Phantom_Appeared.png">
+  <img src="./Phantom_Appeared.png">
+</button>
+
+<button class="elBtn" data-img="Troll.png">
+  <img src="./Troll.png">
+</button>
+
+</div>
+  </div>
+</div>
+
+  <!-- NUMPAD POPUP -->  <div id="numpadPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">    <div style="width:300px; background:#f5e6c8; padding:20px; border-radius:20px; text-align:center;">  <!-- SCREEN -->  <div id="display" style="height:40px; margin-bottom:15px; background:white; border-radius:10px; line-height:40px; font-size:20px;"></div>    <!-- KEYS -->    <div id="keys"></div>    </div>        
+</div>  <div id="gamesPopup" style="        
+display:none;        
+position:fixed;        
+top:0;        
+left:0;        
+width:100vw;        
+height:100vh;        
+background:rgba(0,0,0,0.6);        
+z-index:10000;        
+justify-content:center;        
+align-items:center;        
+">    <div style="        
+  width:70%;        
+  background:white;        
+  padding:20px;        
+  border-radius:15px;        
+  text-align:center;        
+  ">  <button id="clearBtn" style="width:100%; height:40px; margin-bottom:10px;">        
+  CLEAR ALL        
+</button>    <button id="owlBtn" style="width:100%; height:40px; margin-bottom:10px;">        
+  |–{OWL : 0/0}–|        
+</button>    <button id="ghostBtn" style="width:100%; height:40px;">        
+  GHOST        
+</button>
+
+<button id="colorsBtn" style="width:100%; height:40px; margin-bottom:10px;">
+  COLORS : 0
+</button>
+
+<button id="charactersBtn" style="width:100%; height:40px; margin-bottom:10px;">
+  CHARACTERS
+</button>
+
+<button id="quantityBtn" style="width:100%; height:40px; margin-bottom:10px;">
+  QUANTITY
+</button>
+
+<button id="discountBtn" style="width:100%; height:40px; margin-bottom:10px;">
+  DISCOUNT / SALES
+</button>
+
+<button id="orbsBtn" style="width:100%; height:40px; margin-bottom:10px;">
+  ORB'S %
+</button>
+
+<button id="owlTargetBtn" style="width:100%; height:40px;">
+  OWL'S TARGET : 0/0
+</button>
+
+<button id="deleteBtn" style="width:100%; height:40px; margin-top:10px;">
+  DELETE MODE
+</button>
+
+    </div>        
+</div>  <script>        
+const MAP = {        
+  ORBS: 1,        
+  COLORS: 2,        
+  CHARACTERS: 3,        
+  QUANTITY: 4,        
+  DISCOUNT: 5,        
+  SALES: 6,        
+  OWL: 7        
+};    const ORBS = "ORBS";    
+const COLORS = "COLORS";    
+const CHARACTERS = "CHARACTERS";    
+const QUANTITY = "QUANTITY";    
+const DISCOUNT = "DISCOUNT";    
+const SALES = "SALES";    
+const OWL = "OWL";  const LEVELS = {  
+CLEAR: JSON.stringify({id:998,levelDefinitionId:1386160,level:{fi:{f:[],a:[],fl:5},gmm:0,opc:ORBS,v:"0.2.2",gl:0,fd:{n:DISCOUNT,r:SALES},sl:[1000,2000,3000],c:COLORS,g:[],op:CHARACTERS,mtch:0,q:QUANTITY,gm:0}}),  
+OWL: JSON.stringify({id:997,levelDefinitionId:1242815,level:{q:QUANTITY,fi:{f:[],a:[],fl:5},c:COLORS,v:"0.2.2",gmp:{cd:{n:0,r:0},ct:OWL},gm:2,op:CHARACTERS,gmm:0,g:[],gl:0,opc:ORBS,fd:{n:DISCOUNT,r:SALES},sl:[1000,2000,3000]}}),  
+GHOST: JSON.stringify({id:999,levelDefinitionId:1287260,level:{gmm:0,c:COLORS,v:"0.2.2",sl:[1000,2000,3000],gm:1,fi:{f:[],a:[],fl:5},opc:ORBS,g:[],fd:{n:DISCOUNT,r:SALES},op:CHARACTERS,q:QUANTITY,gl:0}})  
+};
+
+const COLOR_MAP = {
+  // ORBS (OLD)
+  "Untitled1_20260402175652.png": 0,
+  "Untitled1_20260402175658.png": 1,
+  "Untitled1_20260402175704.png": 2,
+  "Untitled1_20260402175710.png": 3,
+  "Untitled1_20260402175716.png": 4,
+  "Untitled1_20260402175721.png": 5,
+
+  // OWL
+  "Untitled1_20260405093605.png": 0,
+  "Untitled1_20260405093619.png": 1,
+  "Untitled1_20260405093625.png": 2,
+  "Untitled1_20260405093631.png": 3,
+  "Untitled1_20260405093636.png": 4,
+  "Untitled1_20260405093641.png": 5,
+
+  // FAIRY
+  "Untitled1_20260404230343.png": 0,
+  "Untitled1_20260404230348.png": 1,
+  "Untitled1_20260404230353.png": 2,
+  "Untitled1_20260404230358.png": 3,
+  "Untitled1_20260404230404.png": 4,
+  "Untitled1_20260404230411.png": 5,
+  
+  "BUBBLEUPS 1.png": 0,
+"BUBBLEUPS 2.png": 0,
+"BUBBLEUPS 3.png": 0
+};
+
+const ELEMENT_TYPE_MAP = {
+  // OWL
+  "Untitled1_20260405093605.png": 19,
+  "Untitled1_20260405093619.png": 19,
+  "Untitled1_20260405093625.png": 19,
+  "Untitled1_20260405093631.png": 19,
+  "Untitled1_20260405093636.png": 19,
+  "Untitled1_20260405093641.png": 19,
+
+  // FAIRY
+  "Untitled1_20260404230343.png": 14,
+  "Untitled1_20260404230348.png": 14,
+  "Untitled1_20260404230353.png": 14,
+  "Untitled1_20260404230358.png": 14,
+  "Untitled1_20260404230404.png": 14,
+  "Untitled1_20260404230411.png": 14,
+  
+  // 🔥 BUBBLE UPS (BLOCKERS)
+"BUBBLEUPS 1.png": 5,
+"BUBBLEUPS 2.png": 15,
+"BUBBLEUPS 3.png": 3
+};
+
+const SPECIAL_EXPORT_MAP = {
+
+  // OLD
+  "Spider_web.png": { id: 16 },
+
+  "LINE_BLAST.png": {
+    b: [{ id: 7 }],
+    p: []
+  },
+
+  "BAT_BUBBLE.png": { id: 8 },
+
+  "CLOUD.png": { id: 4 },
+  
+  "Left_Arrow.png": {
+b: [{ id: 25, p: { d: 0 } }],
+p: []
+},
+
+"Left_Diagonal_Arrow.png": {
+b: [{ id: 25, p: { d: 1 } }],
+p: []
+},
+
+"Right_Diagonal_Arrow.png": {
+b: [{ id: 25, p: { d: 2 } }],
+p: []
+},
+
+"Right_Arrow.png": {
+b: [{ id: 25, p: { d: 3 } }],
+p: []
+},
+
+"Golem_Open.png": {
+id: 27,
+p: { s: 0 }
+},
+
+"Golem_Closed.png": {
+id: 27,
+p: { s: 1 }
+},
+
+"Fairy_Nest_101.png": {
+b: [{ id: 26 }],
+p: []
+},
+
+  // ... lahat ng existing mo
+
+  // 🔥 NEW (idagdag mo lang dito)
+  "extra_moves.png": {
+    b: [{ id: 6, p: { m: 5, t: 1 } }],
+    p: []
+  },
+
+  "ice_bubble.png": {
+    id: 34
+  },
+
+  "fireworks_199.png": {
+    b: [{ id: 38 }],
+    p: []
+  },
+
+  "pumpkin.png": {
+    b: [{ id: 36 }],
+    p: []
+  },
+
+  "moreless_plus1.png": {
+    b: [{ id: 37, p: { s: 0 } }],
+    p: []
+  },
+
+  "moreless_minus1.png": {
+    b: [{ id: 37, p: { s: 1 } }],
+    p: []
+  },
+
+  "random_moreless.png": {
+    b: [{ id: 37, p: { s: 2 } }],
+    p: []
+  },
+  
+  // 🔥 NEW BATCH
+
+"frogsty.png": {
+  id: 35
+},
+
+"tint_bubble.png": {
+  b: [{ id: 39 }],
+  p: []
+},
+
+"fogfrog.png": {
+  id: 40
+},
+
+"leaf_bubble.png": {
+  b: [{ id: 41 }],
+  p: []
+},
+
+"dubblie_left.png": {
+  b: [{ id: 42, p: { d: 0 } }],
+  p: []
+},
+
+"dubblie_right.png": {
+  b: [{ id: 42, p: { d: 3 } }],
+  p: []
+},
+
+"random_dubblie.png": {
+  b: [{ id: 42, p: { d: 6 } }],
+  p: []
+},
+
+"bubblifier.png": {
+  b: [{ id: 43 }],
+  p: []
+},
+
+// 🔥 MIRRORS (ALL SAME EXPORT)
+"red_mirror.png": {
+  b: [{ id: 44 }],
+  p: []
+},
+
+"blue_mirror.png": {
+  b: [{ id: 44 }],
+  p: []
+},
+
+"yellow_mirror.png": {
+  b: [{ id: 44 }],
+  p: []
+},
+
+"green_mirror.png": {
+  b: [{ id: 44 }],
+  p: []
+},
+
+"purple_mirror.png": {
+  b: [{ id: 44 }],
+  p: []
+},
+
+// 🔥 NEW 4 ELEMENTS
+
+"Armor_Bubble.png": {
+  id: 45
+},
+
+"Crystal_Bubble.png": {
+  b: [{ id: 49 }],
+  p: []
+},
+
+"Golden_Beetle.png": {
+  id: 50
+},
+
+"Fairy_Bunch.png": {
+  b: [{ id: 51 }],
+  p: []
+},
+
+// 🔥 CHAMELEONS (EXACT CODE)
+
+"Random Chameleon.png": {
+  b: [{ p:{c:0}, id:0 }, { id:52 }],
+  p: []
+},
+
+"Red Chameleon.png": {
+  b: [{ p:{c:1}, id:0 }, { id:52 }],
+  p: []
+},
+
+"Blue Chameleon.png": {
+  b: [{ p:{c:2}, id:0 }, { id:52 }],
+  p: []
+},
+
+"Yellow Chameleon.png": {
+  b: [{ p:{c:3}, id:0 }, { id:52 }],
+  p: []
+},
+
+"Green Chameleon.png": {
+  b: [{ p:{c:4}, id:0 }, { id:52 }],
+  p: []
+},
+
+"Purple Chameleon.png": {
+  b: [{ p:{c:5}, id:0 }, { id:52 }],
+  p: []
+},
+
+// 🔥 FAIRY CHAMELEONS
+
+"Random Fairy Chameleon.png": {
+  b: [{ p:{c:0}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+"Red Fairy Chameleon.png": {
+  b: [{ p:{c:1}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+"Blue Fairy Chameleon.png": {
+  b: [{ p:{c:2}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+"Yellow Fairy Chameleon.png": {
+  b: [{ p:{c:3}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+"Green Fairy Chameleon.png": {
+  b: [{ p:{c:4}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+"Purple Fairy Chameleon.png": {
+  b: [{ p:{c:5}, id:0 }, { id:14 }, { id:52 }],
+  p: []
+},
+
+// 🔥 NEW SPECIAL BATCH 2
+
+"Cauldron.png": {
+  b: [{ id: 53 }],
+  p: []
+},
+
+"Flower_Bubble.png": {
+  b: [{ id: 57 }],
+  p: []
+},
+
+"Black_Hole.png": {
+  b: [{ id: 56 }],
+  p: []
+},
+
+"Lava_Bubble.png": {
+  b: [{ id: 61 }],
+  p: []
+},
+
+// 🔥 FINAL ELEMENTS
+
+"Magic_Broom.png": {
+  b: [{ id: 64 }],
+  p: []
+},
+
+"Soap_Bubble.png": {
+  b: [{ id: 67 }],
+  p: []
+},
+
+"Slime.png": {
+  id: 66
+},
+
+"Phantom_Disappeared.png": {
+  id: 72,
+  p: { s: 0 }
+},
+
+"Phantom_Appeared.png": {
+  id: 72,
+  p: { s: 1 }
+},
+
+"Troll.png": {
+  b: [{ id: 73 }],
+  p: []
+},
+
+};
+
+const DUO_MAP = {
+
+  "randomduobubble.png": { fc: 0, sc: 0 },
+
+  "bluered.png": { fc: 2, sc: 1 },
+  "yellowred.png": { fc: 3, sc: 1 },
+  "greenred.png": { fc: 4, sc: 1 },
+  "purplered.png": { fc: 5, sc: 1 },
+
+  "yellowblue.png": { fc: 3, sc: 2 },
+  "greenblue.png": { fc: 4, sc: 2 },
+  "bluepurple.png": { fc: 2, sc: 5 },
+
+  "yellowgreen.png": { fc: 3, sc: 4 },
+  "yellowpurple.png": { fc: 3, sc: 5 },
+  "greenpurple.png": { fc: 4, sc: 5 }
+
+};
+
+let selectedColors = 0;
+let visualCache = {}; // 🔥 para hindi nagbabago pag scroll
+let currentInputTarget = null;
+
+let specialValues = {}; 
+// key = bubble id, value = { i: number }
+
+let gameSettings = {
+  op: null,   // CHARACTERS
+  q: null,    // QUANTITY
+  discount: null,
+  sales: null,
+  opc: null,  // ORBS %
+  owlTarget: 0
+};
+
+let comboBuilder = [];     // 🔥 pinipiling elements
+let comboList = [];        // 🔥 saved combos
+let selectedCombo = null;  // 🔥 pang paint
+
+let selectedGame = null;
+
+let isDeleting = false;
+
+let bubbleState = {}; // UI display
+let bubbleData = {};  // 🔥 EXPORT DATA (layers per cell)
+
+let scrollOffset = 0;
+let totalRows = 90;
+
+let selectedElement = null;
+
+const elementButtons = document.querySelectorAll(".elBtn");
+
+elementButtons.forEach(btn => {
+  btn.onclick = () => {
+
+    const img = btn.dataset.img;
+
+    // 🔥 TOGGLE SELECT (ON/OFF)
+    if (btn.classList.contains("active")) {
+
+      // REMOVE sa UI
+      btn.classList.remove("active");
+
+      // REMOVE sa builder
+      comboBuilder = comboBuilder.filter(e => e !== img);
+
+    } else {
+
+      // ADD sa UI
+      btn.classList.add("active");
+
+      // ADD sa builder
+      comboBuilder.push(img);
+    }
+
+    console.log("BUILDER:", comboBuilder);
+  };
+});
+
+const gamesPopup = document.getElementById("gamesPopup");
+
+// OPEN GAMES POPUP
+document.getElementById("gamesBtn").onclick = () => {
+popup.style.display = "none";
+gamesPopup.style.display = "flex";
+};
+
+gamesPopup.onclick = (e) => {
+if (e.target === gamesPopup) {
+gamesPopup.style.display = "none";
+}
+};
+
+let isPainting = false;
+
+let currentStroke = new Set(); // 🔥 per slide memory
+
+function paintBubble(bubble, row, col) {
+
+  const id = bubble.dataset.id;
+
+  // 🔥 DELETE MODE (ETO ANG BAGONG PART)
+  if (isDeleting) {
+
+    delete bubbleData[id];
+    delete visualCache[id];
+    delete specialValues[id];
+
+    bubble.innerHTML = "";
+
+    return;
+  }
+
+  // ===== ORIGINAL LOGIC =====
+  if (!selectedCombo) return;
+
+  if (currentStroke.has(id)) return;
+  currentStroke.add(id);
+
+  let layers = [...selectedCombo];
+
+  let needsInput = false;
+
+  layers.forEach(img => {
+    if (img === "Dark Honeycomb.png" || img === "Honey Bee.png") {
+      needsInput = true;
+    }
+  });
+
+  if (needsInput) {
+    let val = prompt("Enter honey amount:");
+    if (val === null) return;
+
+    specialValues[id] = {
+      i: parseInt(val) || 0
+    };
+  }
+
+  bubbleData[id] = {
+    layers: layers
+  };
+
+  renderBubble(bubble, id);
+}
+
+function renderBubble(bubble, id) {
+
+  bubble.innerHTML = "";
+
+  if (!bubbleData[id]) return;
+
+  bubbleData[id].layers.forEach((imgName, index) => {
+
+    const img = document.createElement("img");
+    const finalImg = getRandomVisual(imgName, id);
+img.src = "./" + finalImg;
+
+    img.style.position = "absolute";
+    img.style.top = "0";
+    img.style.left = "0";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "50%";
+    img.style.zIndex = index + 1;
+
+    bubble.appendChild(img);
+  });
+}
+
+function buildGrid() {
+grid = document.getElementById("grid");
+grid.innerHTML = "";
+
+const screenWidth = window.innerWidth;
+
+// EXACT BUTTON POSITIONING
+const btnWidth = screenWidth / 3;
+
+document.getElementById("btn1").style.width = btnWidth + "px";
+document.getElementById("btn1").style.left = "0px";
+
+document.getElementById("btn2").style.width = btnWidth + "px";
+document.getElementById("btn2").style.left = btnWidth + "px";
+
+document.getElementById("btn3").style.width = btnWidth + "px";
+document.getElementById("btn3").style.left = (btnWidth * 2) + "px";
+
+const screenHeight = window.innerHeight;
+
+// EXACT RULES
+const SIZE = screenWidth / 11;
+const VERTICAL_STEP = SIZE * 0.866;
+const OFFSET = SIZE / 2;
+const TOP_MARGIN = 30;
+
+// DYNAMIC ROW COUNT
+const rows = totalRows;
+
+for (let row = 0; row < rows; row++) {
+const isOdd = row % 2 === 1;
+
+const cols = isOdd ? 10 : 11;
+const offsetX = isOdd ? SIZE / 2 : 0;
+
+for (let col = 0; col < cols; col++) {
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  
+  const id = row + "_" + col;
+bubble.dataset.id = id;
+
+  // MOUSE DRAG
+  bubble.addEventListener("mousedown", () => {
+  isPainting = true;
+  currentStroke.clear();
+  paintBubble(bubble, row, col);
+});
+
+  bubble.addEventListener("mouseenter", () => {
+    if (isPainting) {
+      paintBubble(bubble, row, col);
+    }
+  });
+
+  // TOUCH (MOBILE)
+  bubble.addEventListener("touchstart", (e) => {
+
+  e.preventDefault(); // 🔥 IMPORTANT (fix double trigger)
+
+  isPainting = true;
+  currentStroke.clear();
+
+  paintBubble(bubble, row, col);
+});
+
+  bubble.addEventListener("touchmove", (e) => {
+  
+  e.preventDefault(); // 🔥 stops lag / double triggers
+  
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (el && el.classList.contains("bubble")) {
+      const [r, c] = el.dataset.id.split("_").map(Number);
+paintBubble(el, r, c);
+    }
+  });
+
+  const x = offsetX + col * SIZE;
+  const y = TOP_MARGIN + row * VERTICAL_STEP - scrollOffset;
+
+  bubble.style.width = SIZE + "px";
+  bubble.style.height = SIZE + "px";
+  bubble.style.left = x + "px";
+  bubble.style.top = y + "px";
+  
+  // 🔥 IMPORTANT: ibalik drawing galing data
+if (bubbleData[id]) {
+  renderBubble(bubble, id);
+}
+
+  grid.appendChild(bubble);
+}
+
+}
+}
+
+// INITIAL BUILD
+buildGrid();
+
+// REBUILD ON RESIZE (keeps perfect fit)
+window.addEventListener("resize", buildGrid);
+
+const thumb = document.getElementById("thumb");
+const track = document.getElementById("track");
+
+let isDragging = false;
+
+thumb.addEventListener("mousedown", () => {
+isDragging = true;
+});
+
+document.addEventListener("mouseup", () => {
+isDragging = false;
+});
+
+document.addEventListener("mousemove", (e) => {
+if (!isDragging) return;
+
+const rect = track.getBoundingClientRect();
+let x = e.clientX - rect.left;
+
+const max = rect.width - thumb.offsetWidth;
+
+if (x < 0) x = 0;
+if (x > max) x = max;
+
+thumb.style.left = x + "px";
+
+const percent = x / max;
+
+const SIZE = window.innerWidth / 11;
+const VERTICAL_STEP = SIZE * 0.866;
+
+const totalHeight = 90 * VERTICAL_STEP;
+const visibleHeight = window.innerHeight;
+const maxScroll = totalHeight - visibleHeight;
+
+scrollOffset = percent * maxScroll;
+
+buildGrid();
+});
+
+// MOBILE
+thumb.addEventListener("touchstart", () => {
+isDragging = true;
+});
+
+document.addEventListener("touchend", () => {
+isDragging = false;
+});
+
+document.addEventListener("touchmove", (e) => {
+if (!isDragging) return;
+
+const touch = e.touches[0];
+const rect = track.getBoundingClientRect();
+
+let x = touch.clientX - rect.left;
+
+const max = rect.width - thumb.offsetWidth;
+
+if (x < 0) x = 0;
+if (x > max) x = max;
+
+thumb.style.left = x + "px";
+
+const percent = x / max;
+
+const SIZE = window.innerWidth / 11;
+const VERTICAL_STEP = SIZE * 0.866;
+
+const totalHeight = totalRows * VERTICAL_STEP;
+const visibleHeight = window.innerHeight;
+const maxScroll = totalHeight - visibleHeight;
+
+scrollOffset = percent * maxScroll;
+
+buildGrid();
+});
+
+let input = "";
+
+const numpad = document.getElementById("numpadPopup");
+const display = document.getElementById("display");
+const keysContainer = document.getElementById("keys");
+
+// OPEN NUMPAD FROM TOOLS BUTTON
+// CLOSE BUTTON (SIGURADO)
+document.getElementById("closePopupBtn").onclick = function(e) {
+  e.stopPropagation();
+  popup.style.display = "none";
+};
+
+// CLICK OUTSIDE (BACKGROUND)
+popup.addEventListener("click", function(e) {
+  if (e.target.id === "popup") {
+    popup.style.display = "none";
+  }
+});
+
+// PREVENT CLICK SA LOOB (IMPORTANT)
+document.getElementById("popupContent").onclick = function(e) {
+  e.stopPropagation();
+};
+
+document.getElementById("btn1").onclick = () => {
+popup.style.display = "flex";
+};
+
+const elementsPopup = document.getElementById("elementsPopup");
+
+// 🔥 CREATE COMBO
+document.getElementById("createComboBtn").onclick = () => {
+
+  if (comboBuilder.length === 0) return;
+
+  comboList.push([...comboBuilder]);
+
+  comboBuilder = [];
+
+  // 🔥 REMOVE HIGHLIGHT SA LAHAT
+  elementButtons.forEach(b => b.classList.remove("active"));
+
+  alert("COMBO CREATED!");
+};
+
+document.getElementById("btn2").onclick = () => {
+  elementsPopup.style.display = "flex";
+};
+
+elementsPopup.onclick = (e) => {
+  if (e.target === elementsPopup) {
+    elementsPopup.style.display = "none";
+  }
+};
+
+// 🔥 COMBO POPUP
+const comboPopup = document.getElementById("comboPopup");
+const comboContainer = document.getElementById("comboContainer");
+
+document.getElementById("openComboListBtn").onclick = () => {
+
+  comboContainer.innerHTML = "";
+
+  comboList.forEach((combo, index) => {
+
+    const btn = document.createElement("div");
+    btn.className = "elBtn";
+    btn.style.position = "relative";
+
+    combo.forEach((imgName, i) => {
+
+      const img = document.createElement("img");
+      img.src = "./" + imgName;
+
+      img.style.position = "absolute";
+      img.style.top = "0";
+      img.style.left = "0";
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.style.zIndex = i + 1;
+
+      btn.appendChild(img);
+    });
+
+    btn.onclick = () => {
+      selectedCombo = combo;
+      comboPopup.style.display = "none";
+    };
+
+    comboContainer.appendChild(btn);
+  });
+
+  comboPopup.style.display = "flex";
+};
+
+comboPopup.onclick = (e) => {
+  if (e.target === comboPopup) comboPopup.style.display = "none";
+};
+
+document.getElementById("rowsBtn").onclick = () => {
+  currentInputTarget = "ROWS";
+  popup.style.display = "none";
+  numpad.style.display = "flex";
+};
+
+// BUILD KEYS (CUTE LAYOUT)
+const keys = [
+"1","2","3",
+"4","5","6",
+"7","8","9",
+"❌","0","OK",
+"👁️","🌈","💾"
+];
+
+keys.forEach(k => {
+const btn = document.createElement("div");
+btn.className = "key";
+
+if (["👁️","🌈","💾"].includes(k)) {
+btn.classList.add("pink");
+}
+
+btn.innerText = k;
+
+btn.onclick = () => handleKey(k);
+
+keysContainer.appendChild(btn);
+});
+
+// HANDLE INPUT
+function handleKey(k) {
+
+if (k === "❌") {
+input = "";
+}
+else if (k === "OK") {
+
+if (currentInputTarget === "QUANTITY") {
+  quantityValue = parseInt(input) || 0;
+  document.getElementById("quantityBtn").innerText = quantityValue;
+}
+
+if (currentInputTarget === "DISCOUNT") {
+  discountValue = parseInt(input) || 0;
+  discountStep = 2;
+
+  // OPEN SALES NEXT
+  currentInputTarget = "SALES";
+  input = "";
+  display.innerText = "";
+  return;
+}
+
+if (currentInputTarget === "SALES") {
+  salesValue = parseInt(input) || 0;
+  document.getElementById("discountBtn").innerText =
+    discountValue + " / " + salesValue;
+}
+
+if (currentInputTarget === "ORBS") {
+  orbsValue = parseInt(input) || 0;
+  document.getElementById("orbsBtn").innerText = orbsValue;
+}
+
+if (currentInputTarget === "OWL_TARGET") {
+  owlTargetValue = parseInt(input) || 0;
+
+  document.getElementById("owlTargetBtn").innerText =
+    "OWL'S TARGET : 0/" + owlTargetValue;
+}
+
+  if (input !== "") {
+
+    if (currentInputTarget === "ROWS") {
+      totalRows = parseInt(input);
+      scrollOffset = 0;
+      buildGrid();
+    }
+
+    if (currentInputTarget === "COLORS") {
+      selectedColors = parseInt(input) || 0;
+      colorsBtn.innerText = "COLORS : " + selectedColors;
+    }
+
+  }
+
+  input = "";
+  currentInputTarget = null;
+  numpad.style.display = "none";
+
+}
+else if (["👁️","🌈","💾"].includes(k)) {
+// future features (empty muna)
+console.log(k);
+}
+else {
+input += k;
+}
+
+display.innerText = input;
+}
+
+const clearBtn = document.getElementById("clearBtn");
+const owlBtn = document.getElementById("owlBtn");
+const ghostBtn = document.getElementById("ghostBtn");
+
+const deleteBtn = document.getElementById("deleteBtn");
+
+deleteBtn.onclick = () => {
+
+  isDeleting = !isDeleting;
+
+  if (isDeleting) {
+    deleteBtn.style.background = "red";
+    deleteBtn.style.color = "white";
+  } else {
+    deleteBtn.style.background = "white";
+    deleteBtn.style.color = "black";
+  }
+
+};
+
+const colorsBtn = document.getElementById("colorsBtn");
+
+colorsBtn.onclick = () => {
+  currentInputTarget = "COLORS";
+  input = "";
+  display.innerText = "";
+  numpad.style.display = "flex";
+};
+
+const charactersPopup = document.getElementById("charactersPopup");
+
+document.getElementById("charactersBtn").onclick = () => {
+  charactersPopup.style.display = "flex";
+};
+
+function selectCharacter(val) {
+  characterValue = val;
+  document.getElementById("charactersBtn").innerText = val;
+  charactersPopup.style.display = "none";
+}
+
+document.getElementById("quantityBtn").onclick = () => {
+  currentInputTarget = "QUANTITY";
+  input = "";
+  display.innerText = "";
+  numpad.style.display = "flex";
+};
+
+let discountStep = 0;
+
+document.getElementById("discountBtn").onclick = () => {
+  discountStep = 1;
+  currentInputTarget = "DISCOUNT";
+  input = "";
+  display.innerText = "";
+  numpad.style.display = "flex";
+};
+
+document.getElementById("orbsBtn").onclick = () => {
+  currentInputTarget = "ORBS";
+  input = "";
+  display.innerText = "";
+  numpad.style.display = "flex";
+};
+
+document.getElementById("owlTargetBtn").onclick = () => {
+  currentInputTarget = "OWL_TARGET";
+  input = "";
+  display.innerText = "";
+  numpad.style.display = "flex";
+};
+
+function resetButtons() {
+clearBtn.style.background = "white";
+owlBtn.style.background = "white";
+ghostBtn.style.background = "white";
+}
+
+clearBtn.onclick = () => {
+resetButtons();
+clearBtn.style.background = "lightgreen";
+selectedGame = "CLEAR";
+};
+
+owlBtn.onclick = () => {
+resetButtons();
+owlBtn.style.background = "lightgreen";
+selectedGame = "OWL";
+};
+
+ghostBtn.onclick = () => {
+resetButtons();
+ghostBtn.style.background = "lightgreen";
+selectedGame = "GHOST";
+};
+
+document.getElementById("btn3").onclick = () => {
+
+if (!selectedGame) {
+  alert("Pumili muna ng game!");
+  return;
+}
+
+// 🔥 BUILD g:[]
+let gArray = buildExportData();
+
+// GET BASE LEVEL
+let base = JSON.parse(LEVELS[selectedGame]);
+
+base.level.op = characterValue;
+base.level.q = quantityValue;
+base.level.opc = orbsValue;
+base.level.fd.n = discountValue;
+base.level.fd.r = salesValue;
+
+if (base.level.gmp) {
+  base.level.gmp.ct = owlTargetValue;
+}
+
+base.level.c = selectedColors;
+
+// INSERT DATA
+base.level.g = gArray;
+
+// SHOW EXPORT
+document.getElementById("exportPopup").style.display = "flex";
+document.getElementById("exportScreen").value = JSON.stringify(base, null, 0);
+};
+
+function setupDownloadButton() {
+
+  const btn = document.getElementById("downloadBtn");
+
+  if (!btn) {
+    console.log("downloadBtn NOT FOUND");
+    return;
+  }
+
+  btn.addEventListener("click", function () {
+
+    // 🔥 TEST (tanggalin later)
+    console.log("DOWNLOAD CLICKED");
+
+    if (!selectedGame) {
+      alert("Pumili muna ng game!");
+      return;
+    }
+
+    // 🔥 AUTO NAME (NO PROMPT, mas stable sa mobile)
+    let name = "level_" + Date.now();
+
+    // 🔥 BUILD DATA (SAME AS EXPORT)
+    let gArray = buildExportData();
+    let base = JSON.parse(LEVELS[selectedGame]);
+
+    base.level.op = characterValue;
+    base.level.q = quantityValue;
+    base.level.opc = orbsValue;
+    base.level.fd.n = discountValue;
+    base.level.fd.r = salesValue;
+
+    if (base.level.gmp) {
+      base.level.gmp.ct = owlTargetValue;
+    }
+
+    base.level.c = selectedColors;
+    base.level.g = gArray;
+
+    const finalData = JSON.stringify(base);
+
+    // 🔥 DOWNLOAD (SURE WORK SA CHROME MOBILE)
+    const blob = new Blob([finalData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name + ".json";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  });
+}
+
+// 🔥 IMPORTANT: tawagin AFTER load
+window.addEventListener("load", setupDownloadButton);
+
+function toBWS(obj){
+
+if(Array.isArray(obj)) return "["+obj.map(toBWS).join(",")+"]";
+
+if(typeof obj==="object"){
+return "{"+Object.entries(obj).map(([k,v])=>k+":"+toBWS(v)).join(",")+"}";
+}
+
+if(typeof obj==="string"){
+return MAP[obj] ?? obj; // 🔥 convert to number if exists
+}
+
+return obj;
+}
+
+function getAllowedColors() {
+  let max = Math.max(1, Math.min(5, selectedColors || 5));
+  return Array.from({ length: max }, (_, i) => i + 1);
+}
+
+function getRandomVisual(imgName, cellId) {
+
+  // ✅ CACHE
+  if (visualCache[cellId] && visualCache[cellId][imgName]) {
+    return visualCache[cellId][imgName];
+  }
+
+  const allowedColors = getAllowedColors();
+  let pool = [];
+
+  // 🔥 GROUPS (ETO ANG KEY FIX)
+  const NORMAL_ORBS = [
+    "Untitled1_20260402175652.png",
+    "Untitled1_20260402175658.png",
+    "Untitled1_20260402175704.png",
+    "Untitled1_20260402175710.png",
+    "Untitled1_20260402175716.png",
+    "Untitled1_20260402175721.png"
+  ];
+
+  const OWL_ORBS = [
+    "Untitled1_20260405093605.png",
+    "Untitled1_20260405093619.png",
+    "Untitled1_20260405093625.png",
+    "Untitled1_20260405093631.png",
+    "Untitled1_20260405093636.png",
+    "Untitled1_20260405093641.png"
+  ];
+
+  const FAIRY_ORBS = [
+    "Untitled1_20260404230343.png",
+    "Untitled1_20260404230348.png",
+    "Untitled1_20260404230353.png",
+    "Untitled1_20260404230358.png",
+    "Untitled1_20260404230404.png",
+    "Untitled1_20260404230411.png"
+  ];
+
+  // ===== 🔥 AUTO-DETECT RANDOM =====
+
+  // 🔹 NORMAL ORB GROUP
+  if (NORMAL_ORBS.includes(imgName)) {
+
+    // 👉 CHECK kung "random mode" (COLOR = 0)
+    if (COLOR_MAP[imgName] === 0) {
+
+      pool = NORMAL_ORBS.filter(n =>
+        allowedColors.includes(COLOR_MAP[n])
+      );
+
+    } else {
+      return imgName; // ✅ fixed color
+    }
+  }
+
+  // 🔹 OWL GROUP
+  else if (OWL_ORBS.includes(imgName)) {
+
+    if (COLOR_MAP[imgName] === 0) {
+
+      pool = OWL_ORBS.filter(n =>
+        allowedColors.includes(COLOR_MAP[n])
+      );
+
+    } else {
+      return imgName;
+    }
+  }
+
+  // 🔹 FAIRY GROUP
+  else if (FAIRY_ORBS.includes(imgName)) {
+
+    if (COLOR_MAP[imgName] === 0) {
+
+      pool = FAIRY_ORBS.filter(n =>
+        allowedColors.includes(COLOR_MAP[n])
+      );
+
+    } else {
+      return imgName;
+    }
+  }
+
+  // 🔹 RANDOM DUO
+  else if (imgName === "randomduobubble.png") {
+
+    pool = Object.keys(DUO_MAP).filter(name => {
+
+      if (name === "randomduobubble.png") return false;
+
+      const duo = DUO_MAP[name];
+
+      return (
+        allowedColors.includes(duo.fc) &&
+        allowedColors.includes(duo.sc)
+      );
+    });
+  }
+
+  // 🔹 RANDOM CHAMELEONS
+  else if (imgName === "Random Chameleon.png") {
+
+    pool = [
+      "Red Chameleon.png",
+      "Blue Chameleon.png",
+      "Yellow Chameleon.png",
+      "Green Chameleon.png",
+      "Purple Chameleon.png"
+    ].filter(name => {
+      const color = {
+        "Red Chameleon.png": 1,
+        "Blue Chameleon.png": 2,
+        "Yellow Chameleon.png": 3,
+        "Green Chameleon.png": 4,
+        "Purple Chameleon.png": 5
+      }[name];
+
+      return allowedColors.includes(color);
+    });
+  }
+
+  else if (imgName === "Random Fairy Chameleon.png") {
+
+    pool = [
+      "Red Fairy Chameleon.png",
+      "Blue Fairy Chameleon.png",
+      "Yellow Fairy Chameleon.png",
+      "Green Fairy Chameleon.png",
+      "Purple Fairy Chameleon.png"
+    ].filter(name => {
+      const color = {
+        "Red Fairy Chameleon.png": 1,
+        "Blue Fairy Chameleon.png": 2,
+        "Yellow Fairy Chameleon.png": 3,
+        "Green Fairy Chameleon.png": 4,
+        "Purple Fairy Chameleon.png": 5
+      }[name];
+
+      return allowedColors.includes(color);
+    });
+  }
+
+  // 🔹 OTHER RANDOMS
+  else if (imgName === "random_moreless.png") {
+    pool = ["moreless_plus1.png", "moreless_minus1.png"];
+  }
+
+  else if (imgName === "random_dubblie.png") {
+    pool = ["dubblie_left.png", "dubblie_right.png"];
+  }
+
+  // 🔹 DEFAULT
+  else {
+    return imgName;
+  }
+
+  // ===== FINAL PICK =====
+  if (pool.length === 0) return imgName;
+
+  const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+  if (!visualCache[cellId]) visualCache[cellId] = {};
+  visualCache[cellId][imgName] = chosen;
+
+  return chosen;
+}
+
+function getRandomElement() {
+  const all = Array.from(document.querySelectorAll(".elBtn"))
+    .map(btn => btn.dataset.img) // ✅ TAMANG KUHA
+
+    // REMOVE GRAY IMAGE
+    .filter(name => !name.includes("175652"));
+
+  return all[Math.floor(Math.random() * all.length)];
+}
+
+document.getElementById("closePopupBtn").onclick = (e) => {
+  e.stopPropagation(); // 🔥 IMPORTANT
+  popup.style.display = "none";
+};
+
+popup.onclick = (e) => {
+  if (e.target === popup) {
+    popup.style.display = "none";
+  }
+};
+
+document.getElementById("popupContent").onclick = (e) => {
+  e.stopPropagation();
+};
+
+function buildExportData() {
+
+  let entries = [];
+
+  for (let key in bubbleData) {
+
+    const [row, col] = key.split("_").map(Number);
+    const cell = bubbleData[key];
+
+    if (!cell || !cell.layers) continue;
+
+    let blocks = [];
+
+    cell.layers.forEach(imgName => {
+    
+    // 🔥 HONEY SYSTEM
+
+if (imgName === "Honeycomb.png") {
+  blocks.push({
+    id: 59,
+    p: { i: 0, p: 0 }
+  });
+  return;
+}
+
+if (imgName === "Dark Honeycomb.png") {
+  const val = specialValues[key]?.i ?? 0;
+
+  blocks.push({
+    id: 59,
+    p: { i: val, p: 1 }
+  });
+  return;
+}
+
+if (imgName === "Honey Bee.png") {
+  const val = specialValues[key]?.i ?? 0;
+
+  blocks.push({
+    id: 60,
+    p: { i: val }
+  });
+  return;
+}
+
+  // 🔥 DUO BUBBLE (HIGHEST PRIORITY)
+  if (DUO_MAP[imgName]) {
+
+    blocks.push({
+      id: 31,
+      p: DUO_MAP[imgName]
+    });
+
+    return;
+  }
+
+  // 🔥 SPECIAL EXPORT
+  if (SPECIAL_EXPORT_MAP[imgName]) {
+
+    const special = SPECIAL_EXPORT_MAP[imgName];
+
+    if (special.b) {
+      special.b.forEach(x => blocks.push(x));
+    } else {
+      blocks.push(special);
+    }
+
+    return;
+  }
+
+      const isBlocker = [
+        "BUBBLEUPS 1.png",
+        "BUBBLEUPS 2.png",
+        "BUBBLEUPS 3.png"
+      ].includes(imgName);
+
+      const color = COLOR_MAP[imgName] ?? 0;
+      const elementId = ELEMENT_TYPE_MAP[imgName];
+
+      // 🔥 BLOCKERS (solo lang sila)
+      if (isBlocker) {
+        blocks.push({
+          id: elementId
+        });
+        return;
+      }
+
+      // 🔥 ORB
+      blocks.push({
+        id: 0,
+        p: { c: color }
+      });
+
+      // 🔥 ELEMENT (optional)
+      if (elementId) {
+        blocks.push({
+          id: elementId
+        });
+      }
+
+    });
+
+    entries.push({
+      b: blocks,
+      p: [col, row]
+    });
+  }
+
+  // SORT
+  entries.sort((a, b) => {
+    if (a.p[1] === b.p[1]) return a.p[0] - b.p[0];
+    return a.p[1] - b.p[1];
+  });
+
+  return entries;
+}
+
+document.addEventListener("mouseup", () => {
+  isPainting = false;
+});
+
+document.addEventListener("touchend", () => {
+  isPainting = false;
+});
+
+document.addEventListener("touchstart", function(e) {
+  if (e.target.classList.contains("bubble")) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+const upArrow = document.getElementById("upArrow");
+const downArrow = document.getElementById("downArrow");
+
+upArrow.onclick = () => {
+  scrollOffset -= 200;
+  if (scrollOffset < 0) scrollOffset = 0;
+  buildGrid();
+};
+
+downArrow.onclick = () => {
+  scrollOffset += 200;
+
+  const SIZE = window.innerWidth / 11;
+  const VERTICAL_STEP = SIZE * 0.866;
+  const totalHeight = totalRows * VERTICAL_STEP;
+  const visibleHeight = window.innerHeight;
+  const maxScroll = totalHeight - visibleHeight;
+
+  if (scrollOffset > maxScroll) scrollOffset = maxScroll;
+
+  buildGrid();
+};
+</script>  <div id="exportPopup" style="        
+display:none;        
+position:fixed;        
+top:0;        
+left:0;        
+width:100vw;        
+height:100vh;        
+background:rgba(0,0,0,0.6);        
+z-index:10000;        
+justify-content:center;        
+align-items:center;        
+">    <div style="        
+width:80%;        
+background:white;        
+padding:20px;        
+border-radius:15px;        
+text-align:center;        
+">  <textarea id="exportScreen" style="
+
+width:100%;
+height:200px;
+margin-bottom:10px;
+font-family:monospace;
+box-sizing:border-box;
+"></textarea>
+
+<button id="downloadBtn" style="
+
+width:100%;
+height:50px;
+font-size:16px;
+">
+DOWNLOAD JSON
+</button>
+
+  </div>        
+</div>  </body>        
+</html>
